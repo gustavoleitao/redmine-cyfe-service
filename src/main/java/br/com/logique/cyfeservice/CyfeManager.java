@@ -4,7 +4,9 @@ import br.com.logique.cyfeservice.components.*;
 import br.com.logique.cyfeservice.service.RedmineService;
 
 /**
- * Created by Yuri on 20/04/2016.
+ * Manager all actions to Cyfe dashboard.
+ *
+ * @author Yuri Aguiar
  */
 public class CyfeManager {
 
