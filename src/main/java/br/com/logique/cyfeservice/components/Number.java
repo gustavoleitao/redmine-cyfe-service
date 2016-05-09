@@ -8,6 +8,7 @@ public class Number implements CyfeComponent {
     private double value;
     private String title;
 
+
     private Number(double value, String title) {
         this.value = value;
         this.title = title;
@@ -15,6 +16,10 @@ public class Number implements CyfeComponent {
 
     public static Number of(double value, String title) {
         return new Number(value, title);
+    }
+
+    public static Number of(int intValue, String title) {
+        return new Number(intValue, title);
     }
 
     @Override

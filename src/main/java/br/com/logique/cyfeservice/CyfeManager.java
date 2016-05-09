@@ -1,7 +1,7 @@
 package br.com.logique.cyfeservice;
 
 import br.com.logique.cyfeservice.components.*;
-import br.com.logique.cyfeservice.service.RedmineService;
+import br.com.logique.cyfeservice.service.RedmineServiceLagacy;
 
 /**
  * Manager all actions to Cyfe dashboard.
@@ -10,45 +10,45 @@ import br.com.logique.cyfeservice.service.RedmineService;
  */
 public class CyfeManager {
 
-    private RedmineService redmineService;
+    private RedmineServiceLagacy redmineServiceLagacy;
 
     public CyfeManager() {
-        this.redmineService = new RedmineService();
+        this.redmineServiceLagacy = new RedmineServiceLagacy();
     }
 
     public String getFaturamentoGauge() {
-        double faturamentoAnual = redmineService.faturamentoAnual();
+        double faturamentoAnual = redmineServiceLagacy.faturamentoAnual();
         CyfeComponent cyfeComponent = Gauge.of(faturamentoAnual, 1000d, "Faturamento Anual($)");
         return cyfeComponent.response();
     }
 
     public String getFaturamentoNumber() {
-        double faturamentoAnual = redmineService.faturamentoAnual();
+        double faturamentoAnual = redmineServiceLagacy.faturamentoAnual();
         CyfeComponent cyfeComponent = br.com.logique.cyfeservice.components.Number.of(faturamentoAnual, "Ações($)");
         return cyfeComponent.response();
     }
 
     public String getFaturamentoPie() {
-        float[] faturamentoAnualList = redmineService.faturamentoAnualList();
+        float[] faturamentoAnualList = redmineServiceLagacy.faturamentoAnualList();
         CyfeComponent cyfeComponent = Pie.of(faturamentoAnualList);
         return cyfeComponent.response();
     }
 
     public String getFaturamentoFunnel() {
-        float[] faturamentoAnualList = redmineService.faturamentoAnualList();
+        float[] faturamentoAnualList = redmineServiceLagacy.faturamentoAnualList();
         CyfeComponent cyfeComponent = Funnel.of(faturamentoAnualList);
         return cyfeComponent.response();
     }
 
     public String getFaturamnetoList() {
-        float[] faturamentoAnualList = redmineService.faturamentoAnualList();
+        float[] faturamentoAnualList = redmineServiceLagacy.faturamentoAnualList();
         CyfeComponent cyfeComponent = List.of(faturamentoAnualList);
         return cyfeComponent.response();
     }
 
     public String getFaturamentoTable() {
-        float[] faturamentoAnualList1 = redmineService.faturamentoAnualList();
-        float[] faturamentoAnualList2 = redmineService.faturamentoAnualList();
+        float[] faturamentoAnualList1 = redmineServiceLagacy.faturamentoAnualList();
+        float[] faturamentoAnualList2 = redmineServiceLagacy.faturamentoAnualList();
         CyfeComponent cyfeComponent = Table.of(faturamentoAnualList1, faturamentoAnualList2);
         return cyfeComponent.response();
     }
