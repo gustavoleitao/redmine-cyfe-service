@@ -1,6 +1,7 @@
 package br.com.logique.cyfeservice.util;
 
 import java.text.SimpleDateFormat;
+import java.time.YearMonth;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -9,9 +10,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class DateUtil {
 
-    public static long diffHour(Date startDate, Date endDate){
+    public static double diffHour(Date startDate, Date endDate){
         long diff = endDate.getTime() - startDate.getTime();
-        return TimeUnit.MILLISECONDS.toHours(diff);
+        double baseTime = 1000*3600;
+        return diff/baseTime;
     }
 
     public static String toRedmineFormat(Date date){
@@ -19,4 +21,12 @@ public class DateUtil {
         return simpleDateFormat.format(date);
     }
 
+    public static String toCyfeFormat(YearMonth dateTime) {
+        String monthValue = String.valueOf(dateTime.getMonthValue());
+        if (monthValue.length() < 2) {
+            return String.valueOf(dateTime.getYear()) + "0" + dateTime.getMonthValue();
+        } else {
+            return String.valueOf(dateTime.getYear()) + dateTime.getMonthValue();
+        }
+    }
 }
