@@ -146,6 +146,21 @@ public class RedmineService {
         return new IteratorIssues.Builder().withParameters(parameters).build(issueManager);
     }
 
+    private Iterator<Issue> getIssuesInTimeInterval(Long xDaysAgo, Integer projectId) {
+        LocalDateTime xDaysAgoLocalDate;
+        Date startDate, endDate;
+        xDaysAgoLocalDate = LocalDateTime.now().minusDays(xDaysAgo);
+        startDate = Date.from(xDaysAgoLocalDate.atZone(ZoneId.systemDefault()).toInstant());
+        endDate = Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant());
+        RedmineManager mgr = RedmineManagerFactory.createWithApiKey(uri, apiAccessKey);
+        IssueManager issueManager = mgr.getIssueManager();
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("project_id", String.valueOf(projectId));
+        parameters.put("status_id", "*");
+        parameters.put("closed_on", "><" + DateUtil.toRedmineFormat(startDate) + "|" + DateUtil.toRedmineFormat(endDate));
+        return new IteratorIssues.Builder().withParameters(parameters).build(issueManager);
+    }
+
     public Map<String, Double> workedHoursInTimeInterval(Long xDaysAgo, Integer projectId) throws RedmineException {
         double workedHours;
         Map<String, Double> workedHoursMap = new TreeMap<>();
@@ -169,7 +184,7 @@ public class RedmineService {
     public Map<String, Double> workedHoursByPerson(Long xDaysAgo, Integer projectId) throws RedmineException {
         double workedHours;
         Map<String, Double> workedHoursByPersonMap = new TreeMap<>();
-        Iterator<Issue> iterator = getClosedIssuesInTimeInterval(xDaysAgo, projectId);
+        Iterator<Issue> iterator = getIssuesInTimeInterval(xDaysAgo, projectId);
         while (iterator.hasNext()) {
             Issue issue = iterator.next();
             if (issue.getParentId() == null) {

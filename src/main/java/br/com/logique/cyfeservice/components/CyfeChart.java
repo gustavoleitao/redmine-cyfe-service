@@ -20,7 +20,8 @@ public class CyfeChart implements CyfeComponent {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append(dataFormat.responseHeader());
         stringBuilder.append(dataFormat.responseDataValues());
-        stringBuilder.append("Color,#5bc8ac").append("\n");
+//        stringBuilder.append("Color,#5bc8ac").append("\n");
+        stringBuilder.append("Color,#00ff7f").append("\n");
         stringBuilder.append("Type,column").append("\n");
         stringBuilder.append("LabelShow,1").append("\n");
         stringBuilder.append("Total,").append(dataFormat.responseMostRecentValue());

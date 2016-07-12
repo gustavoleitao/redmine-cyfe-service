@@ -20,7 +20,8 @@ public class CyfeList implements CyfeComponent{
         StringBuilder builder = new StringBuilder();
         builder.append(dataFormat.responseHeader())
                 .append(dataFormat.responseDataValues())
-                .append("\n").append("Color,#00ff7f");
+//                .append("\n").append("Color,#5bc8ac");
+                .append("\n").append("Color,#00bfff");
         return builder.toString();
     }
 }
