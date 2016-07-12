@@ -78,24 +78,6 @@ public class RedmineService {
         return issuesInExecutionByProject;
     }
 
-//    public Map<YearMonth, Double> closedIssuesByMonthInLastXMonths(Long xMonthsAgo, Integer projectId) throws RedmineException {
-//        Iterator<Issue> iterator = getClosedIssues(xMonthsAgo, projectId);
-//        Map<YearMonth, Double> closedIssuesByMonthMap = new TreeMap<>();
-//        Double closedIssuesInMonth;
-//        while (iterator.hasNext()) {
-//            Issue issue = iterator.next();
-//            LocalDateTime issueDateTime = LocalDateTime.ofInstant(issue.getUpdatedOn().toInstant(), ZoneId.systemDefault());
-//            YearMonth yearMonth = YearMonth.from(issueDateTime);
-//            if (closedIssuesByMonthMap.get(yearMonth) == null) {
-//                closedIssuesByMonthMap.put(yearMonth, 0D);
-//            }
-//            closedIssuesInMonth = closedIssuesByMonthMap.get(yearMonth);
-//            closedIssuesInMonth++;
-//            closedIssuesByMonthMap.put(yearMonth, closedIssuesInMonth);
-//        }
-//        return closedIssuesByMonthMap;
-//    }
-
     public Map<String, Double> closedIssuesInTimeInterval(Long xDaysAgo, Integer projectId) throws RedmineException {
         double closedIssues;
         Map<String, Double> closedIssuesMap = new TreeMap<>();
@@ -202,24 +184,6 @@ public class RedmineService {
         }
         return workedHoursByPersonMap;
     }
-
-//    public Map<YearMonth, Double> workedHoursByMonthInLastXMonths(Long xMonthsAgo, Integer projectId) throws RedmineException {
-//        Iterator<Issue> iterator = getClosedIssues(xMonthsAgo, projectId);
-//        Map<YearMonth, Double> hoursWorkedByMonth = new TreeMap<>();
-//        Double hoursWorkedInMonth;
-//        while (iterator.hasNext()) {
-//            Issue issue = iterator.next();
-//            YearMonth yearMonth = YearMonth.from(LocalDateTime.ofInstant(issue.getUpdatedOn().toInstant(), ZoneId.systemDefault()));
-//            if (hoursWorkedByMonth.get(yearMonth) == null) {
-//                hoursWorkedByMonth.put(yearMonth, 0D);
-//            }
-//            hoursWorkedInMonth = hoursWorkedByMonth.get(yearMonth);
-//            //hoursWorkedInMonth += DateUtil.diffHour(issue.getCreatedOn(), issue.getUpdatedOn());
-//            hoursWorkedInMonth += getSpentHour(issue.getId());
-//            hoursWorkedByMonth.put(yearMonth, hoursWorkedInMonth);
-//        }
-//        return hoursWorkedByMonth;
-//    }
 
     public int openedIssuesByProjectId(Integer idProject) throws RedmineException {
         int sum = 0;

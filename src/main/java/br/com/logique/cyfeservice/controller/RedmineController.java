@@ -55,27 +55,6 @@ public class RedmineController {
         return CyfeNumber.fromData(openedIssuesForMoreThanXHours, "Opened Issues For More Than 8 Hours").response();
     }
 
-//    @Path(":controller/closedIssuesByMonthInLastXmonths/:XmonthsAgo/:projectId")
-//    public String closedIssuesByMonthInLastXmonthsChart(long XmonthsAgo, Integer projectId) throws RedmineException {
-//        RedmineService redmineService = RedmineServiceFactory
-//                .createRedmineService(application.getKey(), application.getURI());
-//        Map<YearMonth, Double> closedIssuesByMonth = redmineService.closedIssuesByMonthInLastXMonths(XmonthsAgo, projectId);
-//        DataFormatFunction chartDataFunction = new DataFormatFunction();
-//                PreviousPeriodComparison.from(closedIssuesByMonth));
-//        chartData.responseMostRecentValue();
-//        return CyfeChart.fromDataFormat(chartData).response();
-//    }
-
-//    @Path(":controller/hoursworkedbymonthinlastxmonths/:XmonthsAgo/:projectId")
-//    public String workedHoursByMonthInLastXMonths(long XmonthsAgo, Integer projectId) throws RedmineException {
-//        RedmineService redmineService = RedmineServiceFactory
-//                .createRedmineService(application.getKey(), application.getURI());
-//        Map<YearMonth, Double> hoursWorkedByMonth = redmineService.hoursWorkedByMonthInLastXMonths(XmonthsAgo, projectId);
-//        DataFormatFunction chartDataFunction = new DataFormatFunction();
-//                PreviousPeriodComparison.from(hoursWorkedByMonth));
-//        return CyfeChart.fromDataFormat(chartData).response();
-//    }
-
     @Path(":controller/closedissuesintimeinterval/:xDaysAgo/:projectId")
     public String closedIssuesInTimeInterval(long xDaysAgo, Integer projectId) throws RedmineException {
         RedmineService redmineService = RedmineServiceFactory

@@ -22,12 +22,5 @@ public class DataFormatFunction {
         DataFormat.Builder builder = new DataFormat.Builder(stringValuesList, header, comparison);
         return builder.build();
     }
-    
-//    public List<String> createHeader(String... strings){
-//        List<String> header = new ArrayList<>();
-//        for (String string : strings) {
-//            header.add(string);
-//        }
-//        return header;
-//    }
+
 }
