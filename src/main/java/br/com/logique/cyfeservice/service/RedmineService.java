@@ -7,14 +7,12 @@ import com.taskadapter.redmineapi.RedmineException;
 import com.taskadapter.redmineapi.RedmineManager;
 import com.taskadapter.redmineapi.RedmineManagerFactory;
 import com.taskadapter.redmineapi.bean.Issue;
-import com.taskadapter.redmineapi.bean.IssueStatus;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Created by Gustavo on 05/05/2016.
@@ -29,45 +27,32 @@ public class RedmineService {
         this.apiAccessKey = apiAccessKey;
     }
 
-    private Set<Integer> getCloseableStatus() throws RedmineException {
-        RedmineManager mgr = RedmineManagerFactory.createWithApiKey(uri, apiAccessKey);
-        IssueManager issueManager = mgr.getIssueManager();
-        List<IssueStatus> allStatus = issueManager.getStatuses();
-        Set<Integer> closeableStatus = allStatus.stream()
-                .filter(status -> status.isClosed())
-                .map(s -> s.getId()).collect(Collectors.toSet());
-
-        return closeableStatus;
-    }
-
-    private Iterator<Issue> getClosedIssuesByProject(Long xMonthsAgo, Integer idProject) throws RedmineException {
-        LocalDateTime localDate = LocalDateTime.now().minusMonths(xMonthsAgo);
-        Date startDate = Date.from(localDate.atZone(ZoneId.systemDefault()).toInstant());
+    /**
+     * Create an iterator for the opened issues of a single project
+     * @param projectId
+     * @return Iterator for the opened issues issues collection
+     * @throws RedmineException
+     */
+    private Iterator<Issue> getOpenedIssuesByProject(Integer projectId) throws RedmineException {
         RedmineManager mgr = RedmineManagerFactory.createWithApiKey(uri, apiAccessKey);
         IssueManager issueManager = mgr.getIssueManager();
         Map<String, String> paramters = new HashMap<>();
-        paramters.put("project_id", String.valueOf(idProject));
-        paramters.put("status_id", "closed");
-        if (startDate != null) {
-            paramters.put("created_on", ">=" + DateUtil.toRedmineFormat(startDate));
-        }
-        return new IteratorIssues.Builder().withParameters(paramters).build(issueManager);
-    }
-
-    private Iterator<Issue> getOpenedIssuesByProject(Integer idProject) throws RedmineException {
-        RedmineManager mgr = RedmineManagerFactory.createWithApiKey(uri, apiAccessKey);
-        IssueManager issueManager = mgr.getIssueManager();
-        Map<String, String> paramters = new HashMap<>();
-        paramters.put("project_id", String.valueOf(idProject));
+        paramters.put("project_id", String.valueOf(projectId));
         paramters.put("status_id", "open");
         return new IteratorIssues.Builder().withParameters(paramters).build(issueManager);
     }
 
-    public List<String> issuesInExecutionByProjectId(Integer idProject) throws RedmineException {
+    /**
+     * Create a list of all the issues in execution description of a single project
+     * @param projectId
+     * @return List of issues in execution description
+     * @throws RedmineException
+     */
+    public List<String> issuesInExecutionByProjectId(Integer projectId) throws RedmineException {
         RedmineManager mgr = RedmineManagerFactory.createWithApiKey(uri, apiAccessKey);
         IssueManager issueManager = mgr.getIssueManager();
         Map<String, String> parameters = new HashMap<>();
-        parameters.put("project_id", String.valueOf(idProject));
+        parameters.put("project_id", String.valueOf(projectId));
         parameters.put("status_id", StatusIssue.IN_EXECUTION.getIdStr());
         Iterator<Issue> iterator = new IteratorIssues.Builder().withParameters(parameters).build(issueManager);
         List<String> issuesInExecutionByProject = new ArrayList<>();
@@ -78,6 +63,14 @@ public class RedmineService {
         return issuesInExecutionByProject;
     }
 
+    /**
+     * Sums the number of closed issues in a day of a single project from all days of a set time interval and puts in
+     * an ordered map of total closed issues by day
+     * @param xDaysAgo Start of the interval
+     * @param projectId
+     * @return Ordered map of closed issues by day
+     * @throws RedmineException
+     */
     public Map<String, Double> closedIssuesInTimeInterval(Long xDaysAgo, Integer projectId) throws RedmineException {
         double closedIssues;
         Map<String, Double> closedIssuesMap = new TreeMap<>();
@@ -99,9 +92,9 @@ public class RedmineService {
     }
 
     /**
-     * Return total spent hours
-     * @param issuesId issues id
-     * @return spent hour
+     * Sums spent hours from issues received
+     * @param issuesId
+     * @return Total spent hour
      * @throws RedmineException
      */
     public Float getSpentHour(Integer... issuesId) throws RedmineException {
@@ -112,6 +105,12 @@ public class RedmineService {
         return result;
     }
 
+    /**
+     * Get issue spent hours based on issue ID
+     * @param issueId
+     * @return Spent hour
+     * @throws RedmineException
+     */
     private Float getSpentHour(Integer issueId) throws RedmineException {
         RedmineManager mgr = RedmineManagerFactory.createWithApiKey(uri, apiAccessKey);
         IssueManager issueManager = mgr.getIssueManager();
@@ -119,19 +118,14 @@ public class RedmineService {
         return issue.getSpentHours();
     }
 
-    private Iterator<Issue> getClosedIssues(Long xMonthsAgo, Integer projectId) {
-        LocalDateTime localDate = LocalDateTime.now().minusMonths(xMonthsAgo);
-        Date startDate = Date.from(localDate.atZone(ZoneId.systemDefault()).toInstant());
-        RedmineManager mgr = RedmineManagerFactory.createWithApiKey(uri, apiAccessKey);
-        IssueManager issueManager = mgr.getIssueManager();
-        Map<String, String> parameters = new HashMap<>();
-        parameters.put("project_id", String.valueOf(projectId));
-        parameters.put("status_id", "closed");
-        parameters.put("created_on", ">=" + DateUtil.toRedmineFormat(startDate));
-        return new IteratorIssues.Builder().withParameters(parameters).build(issueManager);
-    }
-
-    private Iterator<Issue> getClosedIssuesInTimeInterval(Long xDaysAgo, Integer projectId) {
+    /**
+     * Create an iterator for the closed issues of a single project in a time interval
+     * @param xDaysAgo Start of the interval
+     * @param projectId
+     * @return Iterator for the closed issues collection
+     * @throws RedmineException
+     */
+    private Iterator<Issue> getClosedIssuesInTimeInterval(Long xDaysAgo, Integer projectId) throws RedmineException {
         LocalDateTime xDaysAgoLocalDate;
         Date startDate, endDate;
         xDaysAgoLocalDate = LocalDateTime.now().minusDays(xDaysAgo);
@@ -146,7 +140,14 @@ public class RedmineService {
         return new IteratorIssues.Builder().withParameters(parameters).build(issueManager);
     }
 
-    private Iterator<Issue> getIssuesInTimeInterval(Long xDaysAgo, Integer projectId) {
+    /**
+     * Create an iterator for all the issues of a single project in a time interval
+     * @param xDaysAgo Start of the interval
+     * @param projectId
+     * @return Iterator for the issues collection
+     * @throws RedmineException
+     */
+    private Iterator<Issue> getIssuesInTimeInterval(Long xDaysAgo, Integer projectId) throws RedmineException {
         LocalDateTime xDaysAgoLocalDate;
         Date startDate, endDate;
         xDaysAgoLocalDate = LocalDateTime.now().minusDays(xDaysAgo);
@@ -161,6 +162,14 @@ public class RedmineService {
         return new IteratorIssues.Builder().withParameters(parameters).build(issueManager);
     }
 
+    /**
+     * Sums the number of worked hours of a single project in a day from all days of a set time interval and puts in
+     * an ordered map of total worked hours by day
+     * @param xDaysAgo Start of the interval
+     * @param projectId
+     * @return Ordered map of worked hours by day
+     * @throws RedmineException
+     */
     public Map<String, Double> workedHoursInTimeInterval(Long xDaysAgo, Integer projectId) throws RedmineException {
         double workedHours;
         Map<String, Double> workedHoursMap = new TreeMap<>();
@@ -181,6 +190,14 @@ public class RedmineService {
         return workedHoursMap;
     }
 
+    /**
+     * Sums the number of worked hours of an employee in a project from all days of a set time interval and puts in an
+     * ordered map of total worked hours by person
+     * @param xDaysAgo Start of the interval
+     * @param projectId
+     * @return Ordered map of worked hours by person
+     * @throws RedmineException
+     */
     public Map<String, Double> workedHoursByPerson(Long xDaysAgo, Integer projectId) throws RedmineException {
         double workedHours;
         Map<String, Double> workedHoursByPersonMap = new TreeMap<>();
@@ -200,6 +217,12 @@ public class RedmineService {
         return workedHoursByPersonMap;
     }
 
+    /**
+     * Sums the number of opened issues of a single project
+     * @param idProject
+     * @return Total number of opened issues
+     * @throws RedmineException
+     */
     public int openedIssuesByProjectId(Integer idProject) throws RedmineException {
         int sum = 0;
         Iterator<Issue> iterator = getOpenedIssuesByProject(idProject);
@@ -212,6 +235,13 @@ public class RedmineService {
         return sum;
     }
 
+    /**
+     * Sums the number of closed issues of a single project ina set time interval
+     * @param xDaysAgo Start of the interval
+     * @param idProject
+     * @return Total number of closed issues
+     * @throws RedmineException
+     */
     public int totalClosedIssuesByProjectIdInTimeInterval(Long xDaysAgo, Integer idProject) throws RedmineException {
         Iterator<Issue> iterator = getClosedIssuesInTimeInterval(xDaysAgo, idProject);
         int sum = 0;
@@ -224,6 +254,13 @@ public class RedmineService {
         return sum;
     }
 
+    /**
+     * Sums the number of issues that are open for more than xHours of a single project
+     * @param idProject
+     * @param xHours Threshold for the time an issue is open
+     * @return Total number of opened issues for more than xHours
+     * @throws RedmineException
+     */
     public int openedIssuesForMoreThanXHoursByProject(Integer idProject, double xHours) throws RedmineException {
         Iterator<Issue> iterator = getOpenedIssuesByProject(idProject);
         int sum = 0;
@@ -237,6 +274,13 @@ public class RedmineService {
         return sum;
     }
 
+    /**
+     * Calculate the mean of issues closing time of a single project in a set time interval
+     * @param xDaysAgo Start of the interval
+     * @param idProject
+     * @return Mean of issues closing time in a set interval
+     * @throws RedmineException
+     */
     public double durationAvgClosedIssuesByProject(Long xDaysAgo, Integer idProject) throws RedmineException {
         Iterator<Issue> iterator = getClosedIssuesInTimeInterval(xDaysAgo, idProject);
         int qnt = 0;
