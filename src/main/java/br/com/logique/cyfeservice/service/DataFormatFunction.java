@@ -12,9 +12,16 @@ import java.util.Map;
  */
 public class DataFormatFunction {
 
-    public DataFormat apply(Map<String, Double> workedHoursMap, List<String> header, String comparison) {
+    /**
+     * Takes the data necessary for the widget response and puts in a single object.
+     * @param keyValueMap
+     * @param header
+     * @param comparison
+     * @return DataFormat object with all the data for the response.
+     */
+    public DataFormat apply(Map<String, Double> keyValueMap, List<String> header, String comparison) {
         List<StringValues> stringValuesList = new ArrayList<>();
-        for (Object object : workedHoursMap.entrySet()) {
+        for (Object object : keyValueMap.entrySet()) {
             Map.Entry<String, Double> pair = (Map.Entry<String, Double>) object;
             StringValues stringValues = StringValues.fromStringValue(pair.getKey(), pair.getValue());
             stringValuesList.add(stringValues);

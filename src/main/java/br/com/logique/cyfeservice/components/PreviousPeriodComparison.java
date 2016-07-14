@@ -14,10 +14,15 @@ import java.util.Map;
 
 public class PreviousPeriodComparison {
 
-    public static String from(Map<String, Double> currentPeriod) {
+    /**
+     * Compares the current period data with the previous one.
+     * @param periodDataMap
+     * @return Percentage comparison between the current and previous period.
+     */
+    public static String from(Map<String, Double> periodDataMap) {
         Double current, previous;
         String comparison;
-        List<Double> currentPeriodList = new ArrayList<>(currentPeriod.values());
+        List<Double> currentPeriodList = new ArrayList<>(periodDataMap.values());
         DecimalFormatSymbols separator = new DecimalFormatSymbols(Locale.ENGLISH);
         separator.setGroupingSeparator('.');
         DecimalFormat decimalFormat = new DecimalFormat("##.##", separator);

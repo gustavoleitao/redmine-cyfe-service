@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Formats data received from Redmine.
+ *
  * Created by Yuri on 09/06/2016.
  */
 public class TableData {
@@ -22,6 +24,10 @@ public class TableData {
         this.issuesDescription = issuesDescription;
     }
 
+    /**
+     * Formats header for the Cyfe table widget response.
+     * @return String with the formatted header.
+     */
     public String responseHeader() {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < header.size(); i++) {
@@ -33,6 +39,10 @@ public class TableData {
         return builder.append(END_LINE).toString();
     }
 
+    /**
+     * Formats data received from Redmine for the Cyfe table widget response.
+     * @return String with the formatted data.
+     */
     public String responseIssuesIds() {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < issuesDescription.size(); i++) {

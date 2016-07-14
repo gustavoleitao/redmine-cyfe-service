@@ -16,7 +16,7 @@ public class RedmineServiceTest {
     String applicationUri = "http://209.208.90.122/redmine";
 
     @Test
-    public void testOpenedIssuesByProjectId() throws Exception {
+    public void OpenedIssuesByProjectId() throws Exception {
         RedmineService redmineService = RedmineServiceFactory
                 .createRedmineService(applicationKey, applicationUri);
         int openedIssues = redmineService.openedIssuesByProjectId(55);
@@ -24,7 +24,7 @@ public class RedmineServiceTest {
     }
 
     @Test
-    public void testClosedIssuesByProjectId() throws Exception {
+    public void ClosedIssuesByProjectId() throws Exception {
         RedmineService redmineService = RedmineServiceFactory
                 .createRedmineService(applicationKey, applicationUri);
         int closedIssues = redmineService.totalClosedIssuesByProjectIdInTimeInterval(5L, 42);
