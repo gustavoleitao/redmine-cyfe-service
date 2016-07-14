@@ -24,6 +24,7 @@ public class CyfeNumber implements CyfeComponent {
 
     @Override
     public String response() {
-        return title + "\n" + (int) value + "\n" + "Color,#cb6318";
+        return title + "\n" + (int) value + "\n" + "Color,#ff8c00";
     }
+
 }

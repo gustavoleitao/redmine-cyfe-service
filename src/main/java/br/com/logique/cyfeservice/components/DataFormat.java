@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Locale;
 
 /**
+ * Formats data received from Redmine.
+ *
  * Created by Yuri on 25/05/2016.
  */
 public class DataFormat {
@@ -41,6 +43,10 @@ public class DataFormat {
         return comparison;
     }
 
+    /**
+     * Formats header for the Cyfe widget response.
+     * @return String with the formatted header.
+     */
     public String responseHeader() {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < header.size(); i++) {
@@ -53,6 +59,10 @@ public class DataFormat {
 
     }
 
+    /**
+     * Formats data received from Redmine for the Cyfe widget response.
+     * @return String with the formatted data.
+     */
     public String responseDataValues() {
         StringBuilder builder = new StringBuilder();
         values.forEach(dataValue -> builder.append(responseDataValue(dataValue)));
@@ -73,6 +83,10 @@ public class DataFormat {
         return comparison;
     }
 
+    /**
+     * Take the most recent value from a list of values to be displayed on the Cyfe widget.
+     * @return Most recent value from a list of values.
+     */
     public String responseMostRecentValue() {
         if (values.size() >= 1) {
             StringValues mostRecentStringValues = values.get(values.size() - 1);

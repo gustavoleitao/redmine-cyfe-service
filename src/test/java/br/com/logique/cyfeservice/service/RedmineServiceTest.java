@@ -16,7 +16,7 @@ public class RedmineServiceTest {
     String applicationUri = "http://209.208.90.122/redmine";
 
     @Test
-    public void testOpenedIssuesByProjectId() throws Exception {
+    public void OpenedIssuesByProjectId() throws Exception {
         RedmineService redmineService = RedmineServiceFactory
                 .createRedmineService(applicationKey, applicationUri);
         int openedIssues = redmineService.openedIssuesByProjectId(55);
@@ -24,7 +24,7 @@ public class RedmineServiceTest {
     }
 
     @Test
-    public void testClosedIssuesByProjectId() throws Exception {
+    public void ClosedIssuesByProjectId() throws Exception {
         RedmineService redmineService = RedmineServiceFactory
                 .createRedmineService(applicationKey, applicationUri);
         int closedIssues = redmineService.totalClosedIssuesByProjectIdInTimeInterval(5L, 42);
@@ -46,31 +46,6 @@ public class RedmineServiceTest {
         int openedIssues = redmineService.openedIssuesForMoreThanXHoursByProject(55, 24);
         System.out.println(openedIssues);
     }
-
-//    @Test
-//    public void closedIssuesByMonthInLastXMonths() throws Exception {
-//        RedmineService redmineService = RedmineServiceFactory
-//                .createRedmineService(applicationKey, applicationUri);
-//        String closedIssues = redmineService.closedIssuesByMonthInLastXMonths(Integer.toUnsignedLong(12), 52).toString();
-//        System.out.println(closedIssues);
-//    }
-
-//    //@Test
-//    public void hoursWorkedByMonthInLastXMonths() throws Exception {
-//        RedmineService redmineService = RedmineServiceFactory
-//                .createRedmineService(applicationKey, applicationUri);
-//        Map<YearMonth, Double> hoursWorked = redmineService.workedHoursByMonthInLastXMonths(Integer.toUnsignedLong(12), 52);
-//        System.out.println(hoursWorked.toString());
-//    }
-
-//    //@Test
-//    public void hoursWorkedByPersonByMonthInLastXmonths() throws Exception {
-//        RedmineService redmineService = RedmineServiceFactory
-//                .createRedmineService(applicationKey, applicationUri);
-//        String hoursWorkedByPerson = redmineService.workedHoursByPersonByMonthInLastXmonths(Integer.toUnsignedLong(3));
-//        Assert.assertNotNull(hoursWorkedByPerson);
-//        System.out.println(hoursWorkedByPerson);
-//    }
 
     @Test
     public void issuesInExecutionByProjectId() throws Exception {

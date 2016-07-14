@@ -8,6 +8,11 @@ import java.util.List;
  */
 public class CreateHeader {
 
+    /**
+     * Create header to be added in the controller response.
+     * @param strings Header text
+     * @return List with the header pieces.
+     */
     public static List<String> from(String... strings) {
         List<String> header = new ArrayList<>();
         for (String string : strings) {

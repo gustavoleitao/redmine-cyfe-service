@@ -10,18 +10,15 @@ import java.util.function.BiFunction;
  */
 public class TableDataFunction implements BiFunction<List<String>, List<String>, TableData> {
 
+    /**
+     * Takes the data necessary for the table widget response and puts in a single object.
+     * @param issuesInExecutionList
+     * @param header
+     * @return TableData object with all the data for the response.
+     */
     public TableData apply(List<String> issuesInExecutionList, List<String> header) {
         TableData.Builder builder = new TableData.Builder(header, issuesInExecutionList);
         return builder.build();
     }
 
-//    public TableData apply(Map<Integer, Integer> issuesInExecutionMap, List<String> header) {
-//        List<Integer> projectIds = new ArrayList<>(), numberOfIssues = new ArrayList<>();
-//        for (Map.Entry<Integer, Integer> entry : issuesInExecutionMap.entrySet()) {
-//            projectIds.add(entry.getKey());
-//            numberOfIssues.add(entry.getValue());
-//        }
-//        TableData.Builder builder = new TableData.Builder(header, new List[]{projectIds, numberOfIssues});
-//        return builder.build();
-//    }
 }
