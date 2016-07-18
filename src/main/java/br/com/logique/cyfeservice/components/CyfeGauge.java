@@ -1,17 +1,19 @@
 package br.com.logique.cyfeservice.components;
 
 /**
+ * Create the response in the widget format.
+ *
  * Created by Yuri on 20/04/2016.
  */
 public class CyfeGauge implements CyfeComponent {
 
-    private DataFormat dataFormat;
+    private DataFormatter dataFormat;
 
-    public CyfeGauge(DataFormat dataFormat) {
+    public CyfeGauge(DataFormatter dataFormat) {
         this.dataFormat = dataFormat;
     }
 
-    public static CyfeGauge fromDataFormat(DataFormat dataFormat) {
+    public static CyfeGauge fromDataFormat(DataFormatter dataFormat) {
         return new CyfeGauge(dataFormat);
     }
 

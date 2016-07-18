@@ -3,7 +3,6 @@ package br.com.logique.cyfeservice.util;
 import java.text.SimpleDateFormat;
 import java.time.YearMonth;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Gustavo on 05/05/2016.

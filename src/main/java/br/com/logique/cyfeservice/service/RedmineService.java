@@ -48,22 +48,7 @@ public class RedmineService {
      * @return List of issues in execution description
      * @throws RedmineException
      */
-    public List<String> issuesInExecutionByProjectId(Integer projectId) throws RedmineException {
-        RedmineManager mgr = RedmineManagerFactory.createWithApiKey(uri, apiAccessKey);
-        IssueManager issueManager = mgr.getIssueManager();
-        Map<String, String> parameters = new HashMap<>();
-        parameters.put("project_id", String.valueOf(projectId));
-        parameters.put("status_id", StatusIssue.IN_EXECUTION.getIdStr());
-        Iterator<Issue> iterator = new IteratorIssues.Builder().withParameters(parameters).build(issueManager);
-        List<String> issuesInExecutionByProject = new ArrayList<>();
-        while (iterator.hasNext()) {
-            Issue issue = iterator.next();
-            issuesInExecutionByProject.add(issue.getSubject());
-        }
-        return issuesInExecutionByProject;
-    }
-
-    public Map<String, String> issuesInExecutionByProjectIdV2(Integer projectId) throws RedmineException {
+    public Map<String, String> issuesInExecutionByProjectId(Integer projectId) throws RedmineException {
         RedmineManager mgr = RedmineManagerFactory.createWithApiKey(uri, apiAccessKey);
         IssueManager issueManager = mgr.getIssueManager();
         Map<String, String> parameters = new HashMap<>();

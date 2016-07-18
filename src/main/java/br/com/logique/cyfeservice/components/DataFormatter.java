@@ -11,22 +11,22 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Formats data received from Redmine.
+ * Formats the data received from Redmine.
  *
  * Created by Yuri on 25/05/2016.
  */
-public class DataFormat {
+public class DataFormatter {
 
     public static final String END_LINE = "\n";
     public static final String SEPARATOR = ",";
-    private List<StringValues> values;
+    private List<ResponseData> dataList;
 
     private List<String> header;
 
     private String comparison;
 
-    private DataFormat(List<StringValues> values, List<String> header, String comparison) {
-        this.values = values;
+    private DataFormatter(List<ResponseData> dataList, List<String> header, String comparison) {
+        this.dataList = dataList;
         this.header = header;
         this.comparison = comparison;
     }
@@ -35,8 +35,8 @@ public class DataFormat {
         return header;
     }
 
-    public List<StringValues> getValues() {
-        return values;
+    public List<ResponseData> getDataList() {
+        return dataList;
     }
 
     public String getComparison() {
@@ -65,17 +65,33 @@ public class DataFormat {
      */
     public String responseDataValues() {
         StringBuilder builder = new StringBuilder();
-        values.forEach(dataValue -> builder.append(responseDataValue(dataValue)));
+        dataList.forEach(data -> builder.append(responseDataValue(data)));
         return builder.toString();
     }
 
-    private String responseDataValue(StringValues stringValue) {
+    private String responseDataValue(ResponseData responseData) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(stringValue.getString()).append(",");
-        List<Double> dataValues = stringValue.getValues();
-        for (int i = 0; i < dataValues.size(); i++) {
-            stringBuilder.append(dataValues.get(i));
+        stringBuilder.append(responseData.getString1()).append(",");
+        List<Double> values = responseData.getValues();
+        for (int i = 0; i < values.size(); i++) {
+            stringBuilder.append(values.get(i));
         }
+        return stringBuilder.append(END_LINE).toString();
+    }
+
+    /**
+     * Formats data received from Redmine for the Cyfe widget response.
+     * @return String with the formatted data.
+     */
+    public String responseDataStrings() {
+        StringBuilder stringBuilder = new StringBuilder();
+        dataList.forEach(data -> stringBuilder.append(responseDataString(data)));
+        return stringBuilder.toString();
+    }
+
+    public String responseDataString(ResponseData responseData) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(responseData.getString1()).append(",").append(responseData.getString2());
         return stringBuilder.append(END_LINE).toString();
     }
 
@@ -84,13 +100,13 @@ public class DataFormat {
     }
 
     /**
-     * Take the most recent value from a list of values to be displayed on the Cyfe widget.
-     * @return Most recent value from a list of values.
+     * Take the most recent value from a list of dataList to be displayed on the Cyfe widget.
+     * @return Most recent value from a list of dataList.
      */
     public String responseMostRecentValue() {
-        if (values.size() >= 1) {
-            StringValues mostRecentStringValues = values.get(values.size() - 1);
-            List<Double> mostRecentValueList = mostRecentStringValues.getValues();
+        if (dataList.size() >= 1) {
+            ResponseData mostRecentResponseData = dataList.get(dataList.size() - 1);
+            List<Double> mostRecentValueList = mostRecentResponseData.getValues();
             Double mostRecentValue = mostRecentValueList.get(mostRecentValueList.size() - 1);
             DecimalFormatSymbols separator = new DecimalFormatSymbols(Locale.ENGLISH);
             separator.setGroupingSeparator('.');
@@ -105,7 +121,7 @@ public class DataFormat {
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-                .append("values", values)
+                .append("dataList", dataList)
                 .append("header", header)
                 .toString();
     }
@@ -113,7 +129,7 @@ public class DataFormat {
 
     public static class Builder {
 
-        private List<StringValues> values = new ArrayList<>();
+        private List<ResponseData> dataList = new ArrayList<>();
 
         private List<String> header;
 
@@ -121,9 +137,9 @@ public class DataFormat {
 
         public Builder(){}
 
-        public Builder(List<StringValues> values, List<String> header, String comparison){
+        public Builder(List<ResponseData> dataList, List<String> header, String comparison){
             this.header = header;
-            this.values = values;
+            this.dataList = dataList;
             this.comparison = comparison;
         }
 
@@ -132,13 +148,13 @@ public class DataFormat {
             return this;
         }
 
-        public Builder addDataValue(StringValues value) {
-            values.add(value);
+        public Builder addDataValue(ResponseData value) {
+            dataList.add(value);
             return this;
         }
 
-        public DataFormat build() {
-            return new DataFormat(values, header, comparison);
+        public DataFormatter build() {
+            return new DataFormatter(dataList, header, comparison);
         }
 
     }

@@ -51,7 +51,7 @@ public class RedmineServiceTest {
     public void issuesInExecutionByProjectId() throws Exception {
         RedmineService redmineService = RedmineServiceFactory
                 .createRedmineService(applicationKey, applicationUri);
-        List<String> issuesInExecutionList = redmineService.issuesInExecutionByProjectId(52);
+        Map<String, String> issuesInExecutionList = redmineService.issuesInExecutionByProjectId(52);
         Assert.assertNotNull(issuesInExecutionList);
         System.out.println(issuesInExecutionList.toString());
     }
