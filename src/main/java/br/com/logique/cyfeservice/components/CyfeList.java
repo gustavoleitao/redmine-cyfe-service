@@ -1,17 +1,19 @@
 package br.com.logique.cyfeservice.components;
 
 /**
+ * Create the response in the widget format.
+ *
  * Created by Yuri on 25/04/2016.
  */
 public class CyfeList implements CyfeComponent{
 
-    private DataFormat dataFormat;
+    private DataFormatter dataFormat;
 
-    private CyfeList(DataFormat dataFormat) {
+    private CyfeList(DataFormatter dataFormat) {
         this.dataFormat = dataFormat;
     }
 
-    public static CyfeList fromCyfeList(DataFormat dataFormat) {
+    public static CyfeList fromCyfeList(DataFormatter dataFormat) {
         return new CyfeList(dataFormat);
     }
 

@@ -48,19 +48,25 @@ public class RedmineService {
      * @return List of issues in execution description
      * @throws RedmineException
      */
-    public List<String> issuesInExecutionByProjectId(Integer projectId) throws RedmineException {
+    public Map<String, String> issuesInExecutionByProjectId(Integer projectId) throws RedmineException {
         RedmineManager mgr = RedmineManagerFactory.createWithApiKey(uri, apiAccessKey);
         IssueManager issueManager = mgr.getIssueManager();
         Map<String, String> parameters = new HashMap<>();
         parameters.put("project_id", String.valueOf(projectId));
         parameters.put("status_id", StatusIssue.IN_EXECUTION.getIdStr());
         Iterator<Issue> iterator = new IteratorIssues.Builder().withParameters(parameters).build(issueManager);
-        List<String> issuesInExecutionByProject = new ArrayList<>();
+        Map<String, String> issuesInExecutionByProjectMap = new TreeMap<>();
         while (iterator.hasNext()) {
             Issue issue = iterator.next();
-            issuesInExecutionByProject.add(issue.getSubject());
+            if (issue.getParentId() == null) {
+                String issuesId = issue.getId().toString();
+                if (issuesInExecutionByProjectMap.get(issuesId) == null) {
+                    issuesInExecutionByProjectMap.put(issuesId, "0");
+                }
+                issuesInExecutionByProjectMap.put(issuesId, issue.getSubject());
+            }
         }
-        return issuesInExecutionByProject;
+        return issuesInExecutionByProjectMap;
     }
 
     /**
@@ -266,8 +272,8 @@ public class RedmineService {
         int sum = 0;
         while (iterator.hasNext()) {
             Issue issue = iterator.next();
-            if (issue.getCreatedOn() != null && issue.getClosedOn() != null) {
-                if (DateUtil.diffHour(issue.getCreatedOn(), issue.getClosedOn()) > xHours && issue.getParentId() == null)
+            if (issue.getCreatedOn() != null) {
+                if (DateUtil.diffHour(issue.getCreatedOn(), Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant())) > xHours && issue.getParentId() == null)
                     sum++;
             }
         }

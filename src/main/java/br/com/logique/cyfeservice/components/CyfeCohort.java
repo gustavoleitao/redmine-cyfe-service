@@ -1,17 +1,19 @@
 package br.com.logique.cyfeservice.components;
 
 /**
+ * Create the response in the widget format.
+ *
  * Created by Yuri on 02/05/2016.
  */
 public class CyfeCohort implements CyfeComponent{
 
-    private DataFormat dataFormat;
+    private DataFormatter dataFormat;
 
-    public CyfeCohort(DataFormat dataFormat) {
+    public CyfeCohort(DataFormatter dataFormat) {
         this.dataFormat = dataFormat;
     }
 
-    public static CyfeCohort fromDataFormat(DataFormat dataFormat) {
+    public static CyfeCohort fromDataFormat(DataFormatter dataFormat) {
         return new CyfeCohort(dataFormat);
     }
 

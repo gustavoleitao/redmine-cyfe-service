@@ -5,16 +5,14 @@ import br.com.logique.cyfeservice.components.*;
 import br.com.logique.cyfeservice.service.DataFormatFunction;
 import br.com.logique.cyfeservice.service.RedmineService;
 import br.com.logique.cyfeservice.service.RedmineServiceFactory;
-import br.com.logique.cyfeservice.service.TableDataFunction;
 import br.com.logique.easyspark.annotations.Controller;
 import br.com.logique.easyspark.annotations.Path;
 import com.taskadapter.redmineapi.RedmineException;
 
-import java.util.List;
 import java.util.Map;
 
 /**
- * Controlador respons�vel por centralizar requisi��es para o suporte
+ * Controller responsible for centralizing support requisitions.
  *
  * @author Gustavo Leit�o
  */
@@ -101,9 +99,9 @@ public class RedmineController {
                 .createRedmineService(application.getKey(), application.getURI());
         Map<String, Double> closedIssuesMap = redmineService.closedIssuesInTimeInterval(xDaysAgo, projectId);
         DataFormatFunction dataFormatFunction = new DataFormatFunction();
-        DataFormat dataFormat = dataFormatFunction.apply(closedIssuesMap, CreateHeader.from("Date", "Closed Issues"),
+        DataFormatter dataFormatter = dataFormatFunction.applyStringValueFormat(closedIssuesMap, CreateHeader.from("Date", "Closed Issues"),
                 PreviousPeriodComparison.from(closedIssuesMap));
-        return CyfeChart.fromDataFormat(dataFormat).response();
+        return CyfeChart.fromDataFormat(dataFormatter).response();
     }
 
     /**
@@ -120,9 +118,9 @@ public class RedmineController {
                 .createRedmineService(application.getKey(), application.getURI());
         Map<String, Double> workedHoursMap = redmineService.workedHoursInTimeInterval(xDaysAgo, projectId);
         DataFormatFunction dataFormatFunction = new DataFormatFunction();
-        DataFormat dataFormat = dataFormatFunction.apply(workedHoursMap, CreateHeader.from("Date","Worked Hours"),
+        DataFormatter dataFormatter = dataFormatFunction.applyStringValueFormat(workedHoursMap, CreateHeader.from("Date","Worked Hours"),
                 PreviousPeriodComparison.from(workedHoursMap));
-        return CyfeChart.fromDataFormat(dataFormat).response();
+        return CyfeChart.fromDataFormat(dataFormatter).response();
     }
 
     /**
@@ -136,10 +134,11 @@ public class RedmineController {
     public String issuesInExecutionByProjectIdTable(Integer projectId) throws RedmineException {
         RedmineService redmineService = RedmineServiceFactory
                 .createRedmineService(application.getKey(), application.getURI());
-        List<String> issuesInExecutionList = redmineService.issuesInExecutionByProjectId(projectId);
-        TableDataFunction tableDataFunction = new TableDataFunction();
-        TableData tableData = tableDataFunction.apply(issuesInExecutionList, CreateHeader.from("Issues In Execution"));
-        return CyfeTable.fromCyfeTable(tableData).response();
+        Map<String, String> issuesInExecutionMap = redmineService.issuesInExecutionByProjectId(projectId);
+        DataFormatFunction dataFormatFunction = new DataFormatFunction();
+        DataFormatter dataFormatter = dataFormatFunction.applyStringStringFormat(issuesInExecutionMap,
+                CreateHeader.from("Issue ID(*)", "Issue Subject"), "0");
+        return CyfeTable.fromCyfeTable(dataFormatter).response();
     }
 
     /**
@@ -156,9 +155,9 @@ public class RedmineController {
                 .createRedmineService(application.getKey(), application.getURI());
         Map<String, Double> workedHoursByPersonList = redmineService.workedHoursByPerson(xDaysAgo, projectId);
         DataFormatFunction dataFormatFunction = new DataFormatFunction();
-        DataFormat dataFormat = dataFormatFunction.apply(workedHoursByPersonList, CreateHeader.from("Employee", "Worked Hours"),
-                PreviousPeriodComparison.from(workedHoursByPersonList));
-        return CyfeList.fromCyfeList(dataFormat).response();
+        DataFormatter dataFormatter = dataFormatFunction.applyStringValueFormat(workedHoursByPersonList,
+                CreateHeader.from("Employee", "Worked Hours"), PreviousPeriodComparison.from(workedHoursByPersonList));
+        return CyfeList.fromCyfeList(dataFormatter).response();
     }
 
 }

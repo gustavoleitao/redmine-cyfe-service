@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Create header for the response.
+ *
  * Created by Yuri on 14/06/2016.
  */
 public class CreateHeader {
