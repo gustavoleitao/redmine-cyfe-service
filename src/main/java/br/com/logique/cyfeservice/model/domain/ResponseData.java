@@ -1,4 +1,4 @@
-package br.com.logique.cyfeservice.components;
+package br.com.logique.cyfeservice.model.domain;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -13,44 +13,44 @@ import java.util.List;
  */
 public class ResponseData {
 
-    private String string1;
-    private String string2;
+    private String string;
     private List<Double> values;
+    private List<String> strings;
 
     public static ResponseData fromResponseData(String date, Double... value) {
         return new ResponseData(date, value);
     }
 
-    public static ResponseData fromResponseData(String string1, String string2) {
-        return new ResponseData(string1, string2);
+    public static ResponseData fromResponseData(String date, String... strings) {
+        return new ResponseData(date, strings);
     }
 
     private ResponseData(String date, Double... values) {
-        this.string1 = date;
+        this.string = date;
         this.values = Arrays.asList(values);
     }
 
-    private ResponseData(String string1, String string2) {
-        this.string1 = string1;
-        this.string2 = string2;
+    private ResponseData(String date, String... strings) {
+        this.string = date;
+        this.strings = Arrays.asList(strings);
     }
 
-    public String getString1() {
-        return string1;
-    }
-
-    public String getString2() {
-        return string2;
+    public String getString() {
+        return string;
     }
 
     public List<Double> getValues() {
         return values;
     }
 
+    public List<String> getStrings() {
+        return strings;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE)
-                .append("Date", string1)
+                .append("Date", string)
                 .append("values", values)
                 .toString();
     }

@@ -1,5 +1,6 @@
 package br.com.logique.cyfeservice.service;
 
+import br.com.logique.cyfeservice.model.business.DecimalUtil;
 import br.com.logique.cyfeservice.model.domain.StatusIssue;
 import br.com.logique.cyfeservice.util.DateUtil;
 import com.taskadapter.redmineapi.IssueManager;
@@ -168,6 +169,19 @@ public class RedmineService {
         return new IteratorIssues.Builder().withParameters(parameters).build(issueManager);
     }
 
+    private Iterator<Issue> getClosedIssuesInSetInterval(Long xDaysAgo, LocalDateTime localDateTimeEndDate, Integer projectId) throws RedmineException {
+        Date startDate, endDate;
+        startDate = Date.from(localDateTimeEndDate.minusDays(xDaysAgo).atZone(ZoneId.systemDefault()).toInstant());
+        endDate = Date.from(localDateTimeEndDate.atZone(ZoneId.systemDefault()).toInstant());
+        RedmineManager mgr = RedmineManagerFactory.createWithApiKey(uri, apiAccessKey);
+        IssueManager issueManager = mgr.getIssueManager();
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("project_id", String.valueOf(projectId));
+        parameters.put("status_id", "closed");
+        parameters.put("closed_on", "><" + DateUtil.toRedmineFormat(startDate) + "|" + DateUtil.toRedmineFormat(endDate));
+        return new IteratorIssues.Builder().withParameters(parameters).build(issueManager);
+    }
+
     /**
      * Sums the number of worked hours of a single project in a day from all days of a set time interval and puts in
      * an ordered map of total worked hours by day
@@ -224,14 +238,43 @@ public class RedmineService {
     }
 
     /**
+     * Calculates the issue average closing time of a set time period and puts in each day of another time period.
+     * Example: If xDaysAgo = 5 and eachDayInterval = 5 then for the date 20160131 it would calculate the mean of the
+     * issues closing time of the days 31, 30, 29, 28 and 27, and store it with the key 20160131 of the ordered map.
+     * The date 20160130 would take the mean of the days 30, 29, 28, 27 and 26, and so on.
+     * @param xDaysAgo
+     * @param eachDayInterval
+     * @param projectId
+     * @return Ordered map of issue average closing time of a time period for each day.
+     * @throws RedmineException
+     */
+    public Map<String, Double> averageClosingTimeByProjectInTimeInterval(Long xDaysAgo, Long eachDayInterval, Integer projectId) throws RedmineException {
+        LocalDateTime endDate = LocalDateTime.now();
+        LocalDateTime startDate = endDate.minusDays(xDaysAgo);
+        Map<String, Double> averageClosingTimeMap = new TreeMap<>();
+        DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+        String formattedEndDate;
+        Double averageClosingTime;
+        for (; endDate.isAfter(startDate); endDate = endDate.minusDays(1)) {
+            formattedEndDate = dateFormat.format(Date.from(endDate.atZone(ZoneId.systemDefault()).toInstant()));
+            if (averageClosingTimeMap.get(formattedEndDate) == null) {
+                averageClosingTimeMap.put(formattedEndDate, 0D);
+            }
+            averageClosingTime = DecimalUtil.roundToDouble(durationAvgClosedIssuesByProject(eachDayInterval, endDate, projectId), 2);
+            averageClosingTimeMap.put(formattedEndDate, DateUtil.minToHourMin(averageClosingTime));
+        }
+        return averageClosingTimeMap;
+    }
+
+    /**
      * Sums the number of opened issues of a single project
-     * @param idProject
+     * @param projectId
      * @return Total number of opened issues
      * @throws RedmineException
      */
-    public int openedIssuesByProjectId(Integer idProject) throws RedmineException {
+    public int openedIssuesByProjectId(Integer projectId) throws RedmineException {
         int sum = 0;
-        Iterator<Issue> iterator = getOpenedIssuesByProject(idProject);
+        Iterator<Issue> iterator = getOpenedIssuesByProject(projectId);
         while (iterator.hasNext()) {
             Issue issue = iterator.next();
             if (issue.getParentId() == null){
@@ -244,12 +287,12 @@ public class RedmineService {
     /**
      * Sums the number of closed issues of a single project ina set time interval
      * @param xDaysAgo Start of the interval
-     * @param idProject
+     * @param projectId
      * @return Total number of closed issues
      * @throws RedmineException
      */
-    public int totalClosedIssuesByProjectIdInTimeInterval(Long xDaysAgo, Integer idProject) throws RedmineException {
-        Iterator<Issue> iterator = getClosedIssuesInTimeInterval(xDaysAgo, idProject);
+    public int totalClosedIssuesByProjectIdInTimeInterval(Long xDaysAgo, Integer projectId) throws RedmineException {
+        Iterator<Issue> iterator = getClosedIssuesInTimeInterval(xDaysAgo, projectId);
         int sum = 0;
         while (iterator.hasNext()) {
             Issue issue = iterator.next();
@@ -262,13 +305,13 @@ public class RedmineService {
 
     /**
      * Sums the number of issues that are open for more than xHours of a single project
-     * @param idProject
+     * @param projectId
      * @param xHours Threshold for the time an issue is open
      * @return Total number of opened issues for more than xHours
      * @throws RedmineException
      */
-    public int openedIssuesForMoreThanXHoursByProject(Integer idProject, double xHours) throws RedmineException {
-        Iterator<Issue> iterator = getOpenedIssuesByProject(idProject);
+    public int openedIssuesForMoreThanXHoursByProject(Integer projectId, double xHours) throws RedmineException {
+        Iterator<Issue> iterator = getOpenedIssuesByProject(projectId);
         int sum = 0;
         while (iterator.hasNext()) {
             Issue issue = iterator.next();
@@ -283,12 +326,17 @@ public class RedmineService {
     /**
      * Calculate the mean of issues closing time of a single project in a set time interval
      * @param xDaysAgo Start of the interval
-     * @param idProject
+     * @param projectId
      * @return Mean of issues closing time in a set interval
      * @throws RedmineException
      */
-    public double durationAvgClosedIssuesByProject(Long xDaysAgo, Integer idProject) throws RedmineException {
-        Iterator<Issue> iterator = getClosedIssuesInTimeInterval(xDaysAgo, idProject);
+    public double durationAvgClosedIssuesByProject(Long xDaysAgo, LocalDateTime endDate, Integer projectId) throws RedmineException {
+        Iterator<Issue> iterator;
+        if (endDate != null) {
+            iterator = getClosedIssuesInSetInterval(xDaysAgo, endDate, projectId);
+        } else {
+            iterator = getClosedIssuesInTimeInterval(xDaysAgo, projectId);
+        }
         int qnt = 0;
         double accDuration = 0;
         while (iterator.hasNext()) {

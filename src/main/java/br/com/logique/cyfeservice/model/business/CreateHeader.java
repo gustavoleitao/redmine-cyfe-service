@@ -1,4 +1,4 @@
-package br.com.logique.cyfeservice.components;
+package br.com.logique.cyfeservice.model.business;
 
 import java.util.ArrayList;
 import java.util.List;

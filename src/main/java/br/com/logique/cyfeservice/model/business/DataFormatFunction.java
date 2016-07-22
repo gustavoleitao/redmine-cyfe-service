@@ -1,7 +1,6 @@
-package br.com.logique.cyfeservice.service;
+package br.com.logique.cyfeservice.model.business;
 
-import br.com.logique.cyfeservice.components.DataFormatter;
-import br.com.logique.cyfeservice.components.ResponseData;
+import br.com.logique.cyfeservice.model.domain.ResponseData;
 
 import java.util.ArrayList;
 import java.util.List;

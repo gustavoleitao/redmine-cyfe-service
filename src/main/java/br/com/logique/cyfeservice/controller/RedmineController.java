@@ -2,7 +2,10 @@ package br.com.logique.cyfeservice.controller;
 
 import br.com.logique.cyfeservice.Application;
 import br.com.logique.cyfeservice.components.*;
-import br.com.logique.cyfeservice.service.DataFormatFunction;
+import br.com.logique.cyfeservice.model.business.CreateHeader;
+import br.com.logique.cyfeservice.model.business.DataFormatter;
+import br.com.logique.cyfeservice.model.business.PreviousPeriodComparison;
+import br.com.logique.cyfeservice.model.business.DataFormatFunction;
 import br.com.logique.cyfeservice.service.RedmineService;
 import br.com.logique.cyfeservice.service.RedmineServiceFactory;
 import br.com.logique.easyspark.annotations.Controller;
@@ -64,7 +67,7 @@ public class RedmineController {
     public String averageClosingTimeNumber(Long xDaysAgo, Integer projectId) throws RedmineException {
         RedmineService redmineService = RedmineServiceFactory
                 .createRedmineService(application.getKey(), application.getURI());
-        double avDuration = redmineService.durationAvgClosedIssuesByProject(xDaysAgo, projectId);
+        double avDuration = redmineService.durationAvgClosedIssuesByProject(xDaysAgo, null, projectId);
         return CyfeNumber.fromData(avDuration, "Issues Average Closing Time (DD:HH:MM)(:)").response();
     }
 
@@ -150,7 +153,7 @@ public class RedmineController {
      * @throws RedmineException
      */
     @Path(":controller/workedhoursbyperson/:xDaysAgo/:projectId")
-    public String workedHoursByPersonList(long xDaysAgo, Integer projectId) throws RedmineException {
+    public String workedHoursByPersonList(Long xDaysAgo, Integer projectId) throws RedmineException {
         RedmineService redmineService = RedmineServiceFactory
                 .createRedmineService(application.getKey(), application.getURI());
         Map<String, Double> workedHoursByPersonList = redmineService.workedHoursByPerson(xDaysAgo, projectId);
@@ -158,6 +161,26 @@ public class RedmineController {
         DataFormatter dataFormatter = dataFormatFunction.applyStringValueFormat(workedHoursByPersonList,
                 CreateHeader.from("Employee", "Worked Hours"), PreviousPeriodComparison.from(workedHoursByPersonList));
         return CyfeList.fromCyfeList(dataFormatter).response();
+    }
+
+    /**
+     * Takes the requisition from the Cyfe widget and returns a string with the average issue closing time of a time
+     * period for each day.
+     * @param xDaysAgo
+     * @param eachDayInterval
+     * @param projectId
+     * @return String with issue average closing times in the format recognized by the Cyfe list widget.
+     * @throws RedmineException
+     */
+    @Path(":controller/averageclosingtimebyproject/:xDaysAgo/:eachDayInterval/:projectId")
+    public String averageClosingTimeChart(Long xDaysAgo, Long eachDayInterval, Integer projectId) throws RedmineException {
+        RedmineService redmineService = RedmineServiceFactory
+                .createRedmineService(application.getKey(), application.getURI());
+        Map<String, Double> averageClosingTimeMap = redmineService.averageClosingTimeByProjectInTimeInterval(xDaysAgo, eachDayInterval, projectId);
+        DataFormatFunction dataFormatFunction = new DataFormatFunction();
+        DataFormatter dataFormatter = dataFormatFunction.applyStringValueFormat(averageClosingTimeMap,
+                CreateHeader.from("Date", "Average Closing Time (Hours)"), "0");
+        return CyfeChart.fromDataFormat(dataFormatter).response();
     }
 
 }
