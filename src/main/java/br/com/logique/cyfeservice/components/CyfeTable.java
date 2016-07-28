@@ -1,5 +1,7 @@
 package br.com.logique.cyfeservice.components;
 
+import br.com.logique.cyfeservice.model.business.DataFormatter;
+
 /**
  * Create the response in the widget format.
  *

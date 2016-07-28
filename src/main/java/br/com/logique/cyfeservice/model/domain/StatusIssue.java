@@ -5,7 +5,7 @@ package br.com.logique.cyfeservice.model.domain;
  */
 public enum StatusIssue {
 
-    NEW(1), IN_EXECUTION(2), CLOSED(10);
+    NEW(1), IN_EXECUTION(2), WAITING(11), CLOSED(10);
 
     private Integer id;
 

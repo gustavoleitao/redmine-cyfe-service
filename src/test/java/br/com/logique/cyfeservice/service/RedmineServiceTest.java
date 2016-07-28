@@ -31,13 +31,13 @@ public class RedmineServiceTest {
         System.out.println(closedIssues);
     }
 
-    @Test
-    public void durationAvgClosedIssuesByProject() throws Exception {
-        RedmineService redmineService = RedmineServiceFactory
-                .createRedmineService(applicationKey, applicationUri);
-        double duration = redmineService.durationAvgClosedIssuesByProject(5L, 42);
-        System.out.println(duration);
-    }
+//    @Test
+//    public void durationAvgClosedIssuesByProject() throws Exception {
+//        RedmineService redmineService = RedmineServiceFactory
+//                .createRedmineService(applicationKey, applicationUri);
+//        double duration = redmineService.durationAvgClosedIssuesByProject(5L, 42);
+//        System.out.println(duration);
+//    }
 
     @Test
     public void openedIssuesForMoreThanXHoursByProject() throws Exception {
@@ -95,6 +95,22 @@ public class RedmineServiceTest {
                 .createRedmineService(applicationKey, applicationUri);
         Map<String, Double> workedHoursByPersonMap = redmineService.workedHoursByPerson(5L, 42);
         System.out.println(workedHoursByPersonMap);
+    }
+
+    @Test
+    public void averageClosingTimeByProjectInTimeInterval() throws RedmineException {
+        RedmineService redmineService = RedmineServiceFactory
+                .createRedmineService(applicationKey, applicationUri);
+        Map<String, Double> averageClosingTimeMap = redmineService.averageClosingTimeByProjectInTimeInterval(5L, 7L, 42);
+        System.out.println(averageClosingTimeMap);
+    }
+
+    @Test
+    public void waitingIssuesbyProjectId() throws RedmineException {
+        RedmineService redmineService = RedmineServiceFactory
+                .createRedmineService(applicationKey, applicationUri);
+        Map<String, String> waitingIssuesMap = redmineService.waitingIssuesByProjectId(55);
+        System.out.println(waitingIssuesMap);
     }
 
 }

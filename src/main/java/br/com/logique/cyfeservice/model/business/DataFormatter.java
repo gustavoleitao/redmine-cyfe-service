@@ -1,14 +1,11 @@
-package br.com.logique.cyfeservice.components;
+package br.com.logique.cyfeservice.model.business;
 
+import br.com.logique.cyfeservice.model.domain.ResponseData;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Formats the data received from Redmine.
@@ -71,7 +68,7 @@ public class DataFormatter {
 
     private String responseDataValue(ResponseData responseData) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(responseData.getString1()).append(",");
+        stringBuilder.append(responseData.getString()).append(",");
         List<Double> values = responseData.getValues();
         for (int i = 0; i < values.size(); i++) {
             stringBuilder.append(values.get(i));
@@ -91,7 +88,11 @@ public class DataFormatter {
 
     public String responseDataString(ResponseData responseData) {
         StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(responseData.getString1()).append(",").append(responseData.getString2());
+        stringBuilder.append(responseData.getString()).append(",");
+        List<String> strings = responseData.getStrings();
+        for (int i = 0; i < strings.size(); i++) {
+            stringBuilder.append(strings.get(i));
+        }
         return stringBuilder.append(END_LINE).toString();
     }
 
@@ -108,11 +109,7 @@ public class DataFormatter {
             ResponseData mostRecentResponseData = dataList.get(dataList.size() - 1);
             List<Double> mostRecentValueList = mostRecentResponseData.getValues();
             Double mostRecentValue = mostRecentValueList.get(mostRecentValueList.size() - 1);
-            DecimalFormatSymbols separator = new DecimalFormatSymbols(Locale.ENGLISH);
-            separator.setGroupingSeparator('.');
-            DecimalFormat decimalFormat = new DecimalFormat("##.##", separator);
-            decimalFormat.setRoundingMode(RoundingMode.DOWN);
-            return decimalFormat.format(mostRecentValue);
+            return DecimalUtil.roundToDouble((mostRecentValue), 2).toString();
         } else {
             return "0";
         }
