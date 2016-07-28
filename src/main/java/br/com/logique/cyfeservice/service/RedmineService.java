@@ -16,6 +16,8 @@ import java.time.ZoneId;
 import java.util.*;
 
 /**
+ * Manages the requisitions to Redmine.
+ *
  * Created by Gustavo on 05/05/2016.
  */
 public class RedmineService {
@@ -44,9 +46,9 @@ public class RedmineService {
     }
 
     /**
-     * Create a list of all the issues in execution description of a single project
+     * Create a map of all the issues in execution description of a single project
      * @param projectId
-     * @return List of issues in execution description
+     * @return Map of issues in execution description
      * @throws RedmineException
      */
     public Map<String, String> issuesInExecutionByProjectId(Integer projectId) throws RedmineException {
@@ -60,14 +62,39 @@ public class RedmineService {
         while (iterator.hasNext()) {
             Issue issue = iterator.next();
             if (issue.getParentId() == null) {
-                String issuesId = issue.getId().toString();
-                if (issuesInExecutionByProjectMap.get(issuesId) == null) {
-                    issuesInExecutionByProjectMap.put(issuesId, "0");
-                }
-                issuesInExecutionByProjectMap.put(issuesId, issue.getSubject());
+                String issueId = issue.getId().toString();
+                issuesInExecutionByProjectMap.putIfAbsent(issueId, "0");
+                issuesInExecutionByProjectMap.put(issueId, issue.getSubject());
             }
         }
         return issuesInExecutionByProjectMap;
+    }
+
+    /**
+     * Create a map of all the waiting issues description and waiting time of a single project
+     * @param projectId
+     * @return Map of issues description and waiting time
+     * @throws RedmineException
+     */
+    public Map<String, String> waitingIssuesByProjectId(Integer projectId) throws RedmineException {
+        RedmineManager mgr = RedmineManagerFactory.createWithApiKey(uri, apiAccessKey);
+        IssueManager issueManager = mgr.getIssueManager();
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("project_id", String.valueOf(projectId));
+        parameters.put("status_id", StatusIssue.WAITING.getIdStr());
+        Iterator<Issue> iterator = new IteratorIssues.Builder().withParameters(parameters).build(issueManager);
+        Map<String, String> waitingIssuesByProjectMap = new TreeMap<>();
+        while (iterator.hasNext()) {
+            Issue issue = iterator.next();
+            if (issue.getParentId() == null) {
+                String issueId = issue.getId().toString();
+                String subjectAndTime = issue.getSubject() + "," + DateUtil.hoursToDays(DateUtil.diffHour(issue.getUpdatedOn(),
+                        Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant())));
+                waitingIssuesByProjectMap.putIfAbsent(issueId, "0");
+                waitingIssuesByProjectMap.put(issueId, subjectAndTime);
+            }
+        }
+        return waitingIssuesByProjectMap;
     }
 
     /**
@@ -87,9 +114,7 @@ public class RedmineService {
             Issue issue = iterator.next();
             if (issue.getParentId() == null) {
                 String issueClosedDate = dateFormat.format(issue.getClosedOn());
-                if (closedIssuesMap.get(issueClosedDate) == null) {
-                    closedIssuesMap.put(issueClosedDate, 0D);
-                }
+                closedIssuesMap.putIfAbsent(issueClosedDate, 0D);
                 closedIssues = closedIssuesMap.get(issueClosedDate);
                 closedIssues++;
                 closedIssuesMap.put(issueClosedDate, closedIssues);
@@ -169,6 +194,14 @@ public class RedmineService {
         return new IteratorIssues.Builder().withParameters(parameters).build(issueManager);
     }
 
+    /**
+     * Create an iterator for all the issues of a single project in a set time interval
+     * @param xDaysAgo
+     * @param localDateTimeEndDate
+     * @param projectId
+     * @return Iterator for the issues collection
+     * @throws RedmineException
+     */
     private Iterator<Issue> getClosedIssuesInSetInterval(Long xDaysAgo, LocalDateTime localDateTimeEndDate, Integer projectId) throws RedmineException {
         Date startDate, endDate;
         startDate = Date.from(localDateTimeEndDate.minusDays(xDaysAgo).atZone(ZoneId.systemDefault()).toInstant());
@@ -199,9 +232,7 @@ public class RedmineService {
             Issue issue = iterator.next();
             if (issue.getParentId() == null) {
                 Date issueClosedDate = issue.getClosedOn();
-                if (workedHoursMap.get(dateFormat.format(issueClosedDate)) == null) {
-                    workedHoursMap.put(dateFormat.format(issueClosedDate), 0D);
-                }
+                workedHoursMap.putIfAbsent(dateFormat.format(issueClosedDate), 0D);
                 workedHours = workedHoursMap.get(dateFormat.format(issueClosedDate));
                 workedHours += getSpentHour(issue.getId());
                 workedHoursMap.put(dateFormat.format(issueClosedDate), workedHours);
@@ -226,9 +257,7 @@ public class RedmineService {
             Issue issue = iterator.next();
             if (issue.getParentId() == null) {
                 String assignee = issue.getAssignee().getFullName();
-                if (workedHoursByPersonMap.get(assignee) == null) {
-                    workedHoursByPersonMap.put(assignee, 0D);
-                }
+                workedHoursByPersonMap.putIfAbsent(assignee, 0D);
                 workedHours = workedHoursByPersonMap.get(assignee);
                 workedHours += getSpentHour(issue.getId());
                 workedHoursByPersonMap.put(assignee, workedHours);
@@ -257,11 +286,9 @@ public class RedmineService {
         Double averageClosingTime;
         for (; endDate.isAfter(startDate); endDate = endDate.minusDays(1)) {
             formattedEndDate = dateFormat.format(Date.from(endDate.atZone(ZoneId.systemDefault()).toInstant()));
-            if (averageClosingTimeMap.get(formattedEndDate) == null) {
-                averageClosingTimeMap.put(formattedEndDate, 0D);
-            }
+            averageClosingTimeMap.putIfAbsent(formattedEndDate, 0D);
             averageClosingTime = DecimalUtil.roundToDouble(durationAvgClosedIssuesByProject(eachDayInterval, endDate, projectId), 2);
-            averageClosingTimeMap.put(formattedEndDate, DateUtil.minToHourMin(averageClosingTime));
+            averageClosingTimeMap.put(formattedEndDate, averageClosingTime);
         }
         return averageClosingTimeMap;
     }
@@ -316,7 +343,9 @@ public class RedmineService {
         while (iterator.hasNext()) {
             Issue issue = iterator.next();
             if (issue.getCreatedOn() != null) {
-                if (DateUtil.diffHour(issue.getCreatedOn(), Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant())) > xHours && issue.getParentId() == null)
+                if (DateUtil.diffHour(issue.getCreatedOn(),
+                        Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant())) > xHours
+                        && issue.getParentId() == null)
                     sum++;
             }
         }

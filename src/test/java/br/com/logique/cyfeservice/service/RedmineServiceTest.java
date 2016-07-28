@@ -101,8 +101,16 @@ public class RedmineServiceTest {
     public void averageClosingTimeByProjectInTimeInterval() throws RedmineException {
         RedmineService redmineService = RedmineServiceFactory
                 .createRedmineService(applicationKey, applicationUri);
-        Map<String, Double> averageClosingTimeMap = redmineService.averageClosingTimeByProjectInTimeInterval(5L, 5L, 42);
+        Map<String, Double> averageClosingTimeMap = redmineService.averageClosingTimeByProjectInTimeInterval(5L, 7L, 42);
         System.out.println(averageClosingTimeMap);
+    }
+
+    @Test
+    public void waitingIssuesbyProjectId() throws RedmineException {
+        RedmineService redmineService = RedmineServiceFactory
+                .createRedmineService(applicationKey, applicationUri);
+        Map<String, String> waitingIssuesMap = redmineService.waitingIssuesByProjectId(55);
+        System.out.println(waitingIssuesMap);
     }
 
 }
